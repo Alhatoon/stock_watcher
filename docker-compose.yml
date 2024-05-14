@@ -1,4 +1,31 @@
-version: '3.7'
+# version: '3.7'
+
+# services:
+#   web:
+#     build:
+#       context: .
+#     ports:
+#       - "8000:8000"
+#     volumes:
+#       - .:/app
+#     command: sh -c "python app/manage.py runserver 0.0.0.0:8000"
+#     environment:
+#       - DEBUG=1
+#     depends_on:
+#       - db
+#   db:
+#     image: cassandra:latest
+#     ports:
+#       - "9042:9042"
+#     environment:
+#       - CASSANDRA_CLUSTER_NAME=my-cluster
+#     volumes:
+#       - cassandra_data:/var/lib/cassandra
+# volumes:
+#   cassandra_data:
+#   static_volume:
+
+version: '3.8'
 
 services:
   web:
@@ -8,19 +35,27 @@ services:
       - "8000:8000"
     volumes:
       - .:/app
+    # command: sh -c "/scripts/entrypoint.sh"
     command: sh -c "python app/manage.py runserver 0.0.0.0:8000"
+
     environment:
       - DEBUG=1
     depends_on:
-      - db
+      db:
+        condition: service_healthy  # Waits until the db service is healthy
   db:
     image: cassandra:latest
     ports:
       - "9042:9042"
     environment:
       - CASSANDRA_CLUSTER_NAME=my-cluster
+    healthcheck:
+      test: ["CMD-SHELL", "cqlsh -e 'describe keyspaces;'"]
+      interval: 10s
+      retries: 5
     volumes:
       - cassandra_data:/var/lib/cassandra
+
 volumes:
   cassandra_data:
   static_volume:
