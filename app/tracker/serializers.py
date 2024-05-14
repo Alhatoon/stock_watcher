@@ -5,4 +5,3 @@ class TrackingRecordSerializer(serializers.ModelSerializer):
     class Meta:
         model = TrackingRecord
         fields = '__all__'
-##
