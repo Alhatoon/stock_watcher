@@ -1,0 +1,34 @@
+version: '3.7'
+
+services:
+  app:
+    build:
+      context: .
+    volumes:
+      - static_data:/vol/web
+    environment:
+      - SECRET_KEY=same-secret-key
+      - DEBUG=0
+      - ALLOWED_HOSTS=127.0.0.1,localhost
+  
+  proxy:
+    build:
+      context: ./proxy
+    volumes:
+      - static_data:/vol/static
+    ports:
+      - "8080:8080"
+    depends_on:
+      - app
+  db:
+    image: cassandra:latest
+    ports:
+      - "9042:9042"
+    environment:
+      - CASSANDRA_CLUSTER_NAME=my-cluster
+    volumes:
+      - cassandra_data:/var/lib/cassandra
+
+volumes:
+  static_data:
+  cassandra_data:
