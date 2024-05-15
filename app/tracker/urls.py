@@ -1,16 +1,24 @@
 from django.urls import path
-from . import views
-from .views import UserLogin, UserRegistration
+from .views import  Tracking, Users
 
 
 urlpatterns = [
-    path('login/', UserLogin.as_view(), name='user_login'),
-    path('register/', UserRegistration.as_view(), name='user_registration'),
-    path('start_tracking/', views.start_tracking, name='start_tracking'),
-    path('track_by_id/<int:track_id>/', views.track_by_id, name='track_by_id'),
-    path('track_by_email/<str:email>/', views.track_by_email, name='track_by_email'),
-    path('stop_tracking/', views.stop_tracking, name='stop_tracking'), 
-    path('stop_tracking_confirm/', views.stop_tracking_confirm, name='stop_tracking_confirm'),
+    path('login/', Users.user_login, name='login'),
+    path('registration/', Users.registration, name='registration'),
+    path('start_tracking/', Tracking.start_tracking, name='start_tracking'),
+    path('track_by_id/<int:track_id>/', Tracking.track_by_id, name='track_by_id'),
+    path('track_by_email/<str:email>/', Tracking.track_by_email, name='track_by_email'),
+    path('stop_tracking/', Tracking.stop_tracking, name='stop_tracking'), 
+    path('stop_tracking_confirm/', Tracking.stop_tracking_confirm, name='stop_tracking_confirm'),
     
 ]
 
+# urlpatterns = [
+#     path('login/', User.as_view(), name='login'),
+#     path('register/', User.as_view(), name='registration'),
+#     path('start_tracking/', Tracking.as_view({'post': 'start_tracking'}), name='start_tracking'),
+#     path('track_by_id/<int:track_id>/', Tracking.as_view({'get': 'track_by_id'}), name='track_by_id'),
+#     path('track_by_email/<str:email>/', Tracking.as_view({'get': 'track_by_email'}), name='track_by_email'),
+#     path('stop_tracking/', Tracking.as_view({'post': 'stop_tracking'}), name='stop_tracking'), 
+#     path('stop_tracking_confirm/', Tracking.as_view({'post': 'stop_tracking_confirm'}), name='stop_tracking_confirm'),
+# ]

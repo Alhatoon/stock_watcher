@@ -7,7 +7,7 @@ COPY ./requirements.txt /requirements.txt
 # Install dependencies for uwsgi
 RUN apk add --update --no-cache --virtual .tmp gcc libc-dev linux-headers
 
-RUN pip install -r /requirements.txt 
+RUN pip install --no-cache-dir -r requirements.txt
 
 RUN apk del .tmp
 RUN mkdir /app
