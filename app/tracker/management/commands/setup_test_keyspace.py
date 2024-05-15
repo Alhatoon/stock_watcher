@@ -1,5 +1,4 @@
-# setup_test_keyspace.py
-
+from django.core.management.base import BaseCommand
 from cassandra.cluster import Cluster
 from cassandra.auth import PlainTextAuthProvider
 
@@ -9,18 +8,18 @@ CASSANDRA_KEYSPACE = 'stock_watcher_keyspace'
 CASSANDRA_USERNAME = 'cassandra'
 CASSANDRA_PASSWORD = 'cassandra'
 
-def setup_test_keyspace():
-    # Connect to Cassandra cluster
-    auth_provider = PlainTextAuthProvider(username=CASSANDRA_USERNAME, password=CASSANDRA_PASSWORD)
-    cluster = Cluster(CASSANDRA_HOSTS, auth_provider=auth_provider)
-    session = cluster.connect()
+class Command(BaseCommand):
+    help = 'Sets up the test keyspace'
 
-    # Create test keyspace with the same schema as production
-    session.execute(f"CREATE KEYSPACE IF NOT EXISTS {CASSANDRA_KEYSPACE} WITH replication = {{'class': 'SimpleStrategy', 'replication_factor': 1}}")
-    print(f"Keyspace {CASSANDRA_KEYSPACE} setup completed.")
+    def handle(self, *args, **options):
+        # Connect to Cassandra cluster
+        auth_provider = PlainTextAuthProvider(username=CASSANDRA_USERNAME, password=CASSANDRA_PASSWORD)
+        cluster = Cluster(CASSANDRA_HOSTS, auth_provider=auth_provider)
+        session = cluster.connect()
 
-    # Close connection
-    cluster.shutdown()
+        # Create test keyspace with the same schema as production
+        session.execute(f"CREATE KEYSPACE IF NOT EXISTS {CASSANDRA_KEYSPACE} WITH replication = {{'class': 'SimpleStrategy', 'replication_factor': 1}}")
+        self.stdout.write(self.style.SUCCESS(f"Keyspace {CASSANDRA_KEYSPACE} setup completed."))
 
-if __name__ == "__main__":
-    setup_test_keyspace()
+        # Close connection
+        cluster.shutdown()
