@@ -27,7 +27,15 @@ echo "Finished running sync_cassandra_models."
 #python app/manage.py collectstatic --noinput
 
 
-# Start uWSGI server
-uwsgi --socket :8001 --master --enable-threads --module app.wsgi:application --pythonpath /app/app
-# uwsgi --module app.app.wsgi:application --socket :8001 --master --enable-threads
-# uwsgi --module app.app.app.wsgi:application --socket :8001 --master --enable-threads --pythonpath /app/app
+
+# # Start Celery worker and beat scheduler
+# echo "Starting Celery worker..."
+# celery -A celery worker --loglevel=info &
+
+# echo "Starting Celery beat..."
+# celery -A celery beat --loglevel=info &
+
+
+# Start uWSGI server (proxy)
+# uwsgi --socket :8001 --master --enable-threads --module app.wsgi:application --pythonpath /app/app
+python app/manage.py runserver 0.0.0.0:8001

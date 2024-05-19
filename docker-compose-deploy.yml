@@ -1,3 +1,5 @@
+# TODO: if we were to go to production, we would need to add a reverse proxy to serve the static files and the app itself.
+# This is a simple example of how to do it with Nginx.
 version: '3.7'
 
 services:

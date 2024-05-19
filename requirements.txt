@@ -7,3 +7,5 @@ django-cassandra-engine==1.6.1
 celery
 django-celery-beat
 bcrypt
+redis
+requests

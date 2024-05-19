@@ -1,6 +1,8 @@
 import os
 from cassandra.cqlengine import connection
 from cassandra.auth import PlainTextAuthProvider
+import os
+# from tracker.celery import Celery
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -9,10 +11,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY', 'changeme')
+SECRET_KEY = os.environ.get('SECRET_KEY', 'changemelatwr')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = bool(int(os.environ.get('DEBUG', 0)))
+DEBUG = bool(int(os.environ.get('DEBUG', 1)))
 
 ALLOWED_HOSTS = ["localhost", ""]
 ALLOWED_HOSTS_ENV = os.environ.get("ALLOWED_HOSTS")
@@ -22,14 +24,17 @@ if ALLOWED_HOSTS_ENV:
 APPEND_SLASH = False
 # Application definition
 
+
+
+
 INSTALLED_APPS = [
-    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'tracker',
+    'django_celery_beat',
 ]
 
 MIDDLEWARE = [
@@ -151,7 +156,11 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'testingmobily@gmail.com' 
-EMAIL_HOST_PASSWORD = 'Toon_1234'
+# Change the password to an app password better security... 
+EMAIL_HOST_PASSWORD = 'alpf fxyk qqxz aggx'
+
+# Email Host for APIs for now.
+DEFAULT_FROM_EMAIL = 'http://localhost:8001'
 
 
 # CQLENG_ALLOW_SCHEMA_MANAGEMENT 
@@ -169,3 +178,14 @@ connection.setup(CASSANDRA_HOSTS, CASSANDRA_KEYSPACE, auth_provider=auth_provide
 
 # Issue with request limit size
 DATA_UPLOAD_MAX_MEMORY_SIZE = 20 * 1024 * 1024  # 20 MB
+
+
+# Celery settings
+CELERY_BROKER_URL = f'redis://default:{os.getenv("sZbjyLhjEigfFRcmDpeBITyENjZfbFca")}@{os.getenv("roundhouse.proxy.rlwy.net")}:{os.getenv("17570")}'
+REDIS_URL = f'redis://default:{os.getenv("sZbjyLhjEigfFRcmDpeBITyENjZfbFca")}@{os.getenv("roundhouse.proxy.rlwy.net")}:{os.getenv("17570")}'
+
+# CELERY_BROKER_URL = 'redis://localhost:17570/0'  # Use the Redis URL with the exposed port
+# CELERY_RESULT_BACKEND = 'redis://localhost:17570/0' # Use the Redis URL with the exposed port
+
+# CELERY_BROKER_URL = 'redis://localhost:6379/0'
+# CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
