@@ -1,33 +1,48 @@
+# Use the official Python image from the Docker Hub
 FROM python:3.8-alpine
 
-ENV PATH="/scripts:${PATH}"
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
+# Install dependencies
+RUN apk update \
+    && apk add --no-cache --virtual .build-deps gcc libc-dev linux-headers \
+    && apk add --no-cache mariadb-dev \
+    && pip install --upgrade pip \
+    && apk del .build-deps
+
+# Create directories
+RUN mkdir -p /app /vol/web /vol/static
+
+# Set the working directory to /app
+WORKDIR /app
+
+# Copy the requirements file into the image
 COPY ./requirements.txt /requirements.txt
 
-# Install dependencies for uwsgi and other build dependencies
-RUN apk add --update --no-cache --virtual .build-deps gcc libc-dev linux-headers \
-    && pip install --no-cache-dir -r /requirements.txt \
-    && apk del .build-deps 
+# Install the Python dependencies
+RUN pip install -r /requirements.txt
 
-RUN mkdir /app
+# Copy the application files into the image
 COPY ./app /app
-WORKDIR /app
+
+# Copy the entrypoint script
 COPY ./scripts /scripts
 RUN chmod +x /scripts/*
 
-# Add debugging step to list contents of /scripts directory
-RUN ls -la /scripts
-
-
-# TODO:  Not needed now, but leave its ok.
-RUN mkdir -p /vol/web/media
-RUN mkdir -p /vol/web/static
-
+# Ensure that the /vol directory exists and change ownership
 RUN adduser -D user
 RUN chown -R user:user /vol
 
+# Set file permissions
 RUN chmod -R 755 /vol/web
 
+# Switch to the new user
 USER user
 
-CMD ["entrypoint.sh"]
+# Run the entrypoint script
+ENTRYPOINT ["/scripts/entrypoint.sh"]
+
+# Expose the port that the app runs on
+EXPOSE 8001
