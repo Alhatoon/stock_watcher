@@ -1,30 +1,3 @@
-# version: '3.7'
-
-# services:
-#   web:
-#     build:
-#       context: .
-#     ports:
-#       - "8000:8000"
-#     volumes:
-#       - .:/app
-#     command: sh -c "python app/manage.py runserver 0.0.0.0:8000"
-#     environment:
-#       - DEBUG=1
-#     depends_on:
-#       - db
-#   db:
-#     image: cassandra:latest
-#     ports:
-#       - "9042:9042"
-#     environment:
-#       - CASSANDRA_CLUSTER_NAME=my-cluster
-#     volumes:
-#       - cassandra_data:/var/lib/cassandra
-# volumes:
-#   cassandra_data:
-#   static_volume:
-
 version: '3.8'
 
 services:
@@ -32,17 +5,28 @@ services:
     build:
       context: .
     ports:
-      - "8000:8000"
+      - "8001:8001"
     volumes:
       - .:/app
-    # command: sh -c "/scripts/entrypoint.sh"
-    command: sh -c "python app/manage.py runserver 0.0.0.0:8000"
 
+    # Added in entrypoint.sh, not needed here anymore 
+    command: ["/scripts/entrypoint.sh"]
+    # command: sh -c "python app/manage.py runserver 0.0.0.0:8000"
     environment:
       - DEBUG=1
     depends_on:
       db:
         condition: service_healthy  # Waits until the db service is healthy
+
+# If using proxy (recommened for production)
+  proxy:
+    build:
+      context: ./proxy
+    ports:
+      - "8000:8000"
+    depends_on:
+      - web
+  
   db:
     image: cassandra:latest
     ports:
@@ -55,6 +39,44 @@ services:
       retries: 5
     volumes:
       - cassandra_data:/var/lib/cassandra
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+# No need for now
+  # celery:
+  #   build:
+  #     context: .
+  #   command: celery -A celery worker --loglevel=info
+  #   volumes:
+  #     - .:/app
+  #   environment:
+  #     - DJANGO_SETTINGS_MODULE=app.app.settings
+  #     - PYTHONPATH=/app/app/app
+  #   depends_on:
+  #     - db
+  #     - redis
+
+  celery-beat:
+    build:
+      context: .
+    command: celery -A celery beat --loglevel=info
+    volumes:
+      - .:/app
+    environment:
+      - DJANGO_SETTINGS_MODULE=app.app.settings
+      - PYTHONPATH=/app/app/app
+    depends_on:
+      - db
+      - redis
+      # - celery
+
 
 volumes:
   cassandra_data:
